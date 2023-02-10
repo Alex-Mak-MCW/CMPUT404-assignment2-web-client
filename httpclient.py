@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # coding: utf-8
-# Copyright 2016 Abram Hindle, https://github.com/tywtyw2002, and https://github.com/treedust
+# Copyright 2023 Abram Hindle, Alex Mak, https://github.com/tywtyw2002, and https://github.com/treedust
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,67 +36,59 @@ class HTTPClient(object):
     #def get_host_port(self,url):
 
     def prepare_request(self, url):
-        # 1. setup url:
-
-        # add "http://" if http is not in url
+        # Goal: prepare the http request to be sent later by setting up the url, hostname, port, path
+        
+        # Setup url:
+        # Just incase: add "http://" if http is not in the beginning of the url
         print("Url: ", url)
         if 'http' not in url:
             url="http://"+url
 
-        # get the url's info(hostname, port, path) using url.parse, learned from the link below
-        # https://docs.python.org/3/library/urllib.parse.html
-        # print("test start")
-        # print(urllib.parse.urlparse(url))
-        # print("test end")
+        # get the url's info(hostname, port, path) using urlluib.urlparse(), learned from the source below
+        
+        # Source Title: urllib.parse — Parse URLs into components
+        # Source Type: Website
+        # Source author: Python Software Foundation Authors
+        # Source License: Python Software Foundation License Version 2
+        # Latest date contributed: February 9th, 2023
+        # URL: https://docs.python.org/3/library/urllib.parse.html   
 
         hostname=urllib.parse.urlparse(url).hostname
-        # print(hostname)
         port=urllib.parse.urlparse(url).port
 
-        # If port doesn't exist, default it with 80
+        # Incase if port doesn't exist, default it with 80
         # if port is None: // one or another below
         if not port: 
             port=80
-
-        # print(port)
-        # print(type(port))
+            
         path=urllib.parse.urlparse(url).path
-        # print(path)
 
-        # if empty path, default it just with the slash
+        # Incase if empty path/ path not exist, default it just with the slash
         if not path:
             path='/'
         
         # connect the server with the proper hostname and port number
         self.connect(hostname, port)
-
+   
+        # Return the info obtained
         return hostname, port, path
 
     def get_data(self):
-        # get the data first
+        # Get the data first
         data=self.recvall(self.socket)
-        # learned from lab to always close right after reading data
+        # learned from lab to always close the socket right after reading data
         self.close()
 
-        # 3. get code, body, header and return the http response
-        # 3a. Code
+        # Get code, body, header from get getter functions
         code=self.get_code(data)
-        # 3b. Header Part
         header=self.get_headers(data)
-        # 3c. body
         body=self.get_body(data)
 
-        # print the response in the format of header + line + body
+        # Print the response in the format of header + line + body
         response_output=header+body
-
-        # print("output starts")
         print(response_output)
-        # print("output ends")
 
         return code, header, body
-
-        # # 4. return the response
-        # return HTTPResponse(code, body)
 
     def connect(self, host, port):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -105,66 +97,36 @@ class HTTPClient(object):
 
     # Get request: code, header, body
 
-    # Todo: Done
     def get_code(self, data):
         # Goal: return the code in integer format
 
-        # Find the first 3-digit number using re.findall() method
-        # https://www.guru99.com/python-regular-expressions-complete-tutorial.html
+        # Find the first 3-digit number using re.findall() method, learned from the source below
+        
+        # Source Title: Python Regex: re.search() VS re.findall()
+        # Source Type: Website
+        # Source author: Nikhil Aggarwal
+        # Source License: CC BY-SA 
+        # Latest date contributed: January 11th, 2022
+        # URL: https://www.geeksforgeeks.org/python-regex-re-search-vs-re-findall/
         return int(re.findall(r'\d+\d+\d', data)[0])
-        # return None
 
     # Todo: Done
     def get_headers(self,data):
         # Goal: return the header in string format
 
-        # Split the data with 2 lines, splited data will be in 2 parts(0: header, 1: body)
+        # Split the data into 2 by using 2 lines, splited data will be in 2 parts(0: header, 1: body)
         parts=data.split("\r\n\r\n")
         # Return the header part
         return parts[0]
 
-        # old
-        """
-        header=""
-        lines=data.split('\r\n')
-        # Find the index until that blank line that seperate the header and body
-        header_end=lines.index("")
-        for i in range(0, header_end):
-            header+=(lines[i]+"\r\n")
-        """
-        # Pure test
-        # print("test a")
-        # for i in range(len(exp)):
-        #     print(i)
-        #     print(exp[i])
-        #     print(type(exp[i]))
-        # # print(lines[0])
-        # print("test b")
-
-        # return header
-        # return None
-
-    # Todo
+    # Todo: Done
     def get_body(self, data):
         # Goal: return the body in string format
 
-        # Split the data with 2 lines, splited data will be in 2 parts(0: header, 1: body)
+        # like get_header, just return the other part
         parts=data.split("\r\n\r\n")
         # Return the body part
         return parts[1]
-
-        # Old: 
-        """
-        body=""
-        # Split the lines in a list
-        lines=data.split('\r\n')
-        # Find the index until that blank line that seperate the header and body
-        body_start=lines.index("")
-        for i in range(body_start, len(lines)):
-            body+=(lines[i]+"\r\n")
-        """
-        # return body
-        # return None
     
     def sendall(self, data):
         self.socket.sendall(data.encode('utf-8'))
@@ -187,53 +149,48 @@ class HTTPClient(object):
     # To do a GET, you need to get a request and send it first, then recv to get its data (include code, header, and body)
     # Then print the HTTP response 
     def GET(self, url, args=None):
-        # code = 500
-        # body = ""
-        # print("hihi")
+        
+        # Learned to do accept: */* to allow different mimetye server wants to return from the source below:
+        
+        # Source Title: What does 'Accept: */*' mean under Client section of Request Headers?
+        # Source Type: Website (StackOverflow)
+        # Source author and editor: MildlySerious (URL: https://stackoverflow.com/users/1728398/mildlyserious), Zze (URL: https://stackoverflow.com/users/3509591/zze)
+        # Source License: CC BY-SA 4.0
+        # Latest date contributed: August 11th, 2011
+        # Resource URI: https://stackoverflow.com/questions/14772634/what-does-accept-mean-under-client-section-of-request-headers
 
-        # https://www.guru99.com/difference-get-post-http.html 
-        # https://stackoverflow.com/questions/14772634/what-does-accept-mean-under-client-section-of-request-headers
-
+        # 1. prepare the request by getting the hostname, port and path within the prepare_request() function
         hostname, port, path=self.prepare_request(url)
 
-        # send the request
+        # 2. Build the POST request in string and send it
         send=f'GET {path} HTTP/1.1\r\nHost: {hostname}\r\nUser-Agent: Mozilla/5.0\r\nAccept: */*\r\nConnection: close\r\n\r\n'
         self.sendall(send)
 
-
-        # 2. try to get data itself
-        # data=self.recvall(self.socket)
-        # self.close()
-
+        # 3. Get the code, header and body and print the response itself within the get_data function()
         code, header, body=self.get_data()
 
-        """
-        # 3. get code, body, header and return the http response
-        # 3a. Code
-        code=self.get_code(data)
-
-        # 3b. Header Part
-        header=self.get_headers(data)
-
-        # 3c. body
-        body=self.get_body(data)
-        """
-
-        # 4. return the response
+        # 4. Return the HTTP response
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
-        # code = 500
-        # body = ""
-
+        # For a POST request: 
+        # 1. prepare the request by getting the hostname, port and path within the prepare_request() function
         hostname, port, path=self.prepare_request(url)
 
-        # 1a. check arg and bytes length (only for POST reqeust)
-        # print("test")
-        # print(urllib.parse.urlencode(args))
+        # ONLY FOR POST
+        # 1a. check encoded_param and bytes length 
+        
+        # Use urllib.prase.urlencode() to find the encoded parameters, then use that to find its length to determine its byte length (needed for POST request)
+        # I have learned to use the urllib.prase.urlencode() from the source below
+        
+        # Source Title: urllib.parse — Parse URLs into components
+        # Source Type: Website
+        # Source author: Python Software Foundation Authors
+        # Source License: Python Software Foundation License Version 2
+        # Latest date contributed: February 9th, 2023
+        # URL: https://docs.python.org/3/library/urllib.parse.html   
 
-        # use urllib.prase.urlencode to find the body(arguments), use that find its length to determine its byte length
-        # encoded_args=""
+        # If args exist, parse the encoded_param, else it will be an empty string
         if args:
             encoded_args=urllib.parse.urlencode(args)
         else:
@@ -243,39 +200,21 @@ class HTTPClient(object):
         #     encoded_args=args
         #     bytes_len=0
         
+        # Bytes length= length of param
         bytes_len=len(encoded_args)
 
-        print("args start")
-        print(encoded_args)
-        print("args end")
+#         print("args start")
+#         print(encoded_args)
+#         print("args end")
 
-
-        # https://stackoverflow.com/questions/14772634/what-does-accept-mean-under-client-section-of-request-headers
+        # 2. Build the POST request in string and send it
         send=f'POST {path} HTTP/1.1\r\nHost: {hostname}\r\nUser-Agent: Mozilla/5.0\r\nAccept: */*\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {bytes_len}\r\n\r\n{encoded_args}'
         self.sendall(send)
         
+        # 3. Get the code, header and body and print the response itself within the get_data function()
         code, header, body=self.get_data()
 
-        """
-        # 2. try to get data itself
-        data=self.recvall(self.socket)
-        self.close()
-
-        # 3. get code, body, header and return the http response
-        # 3a. Code
-        code=self.get_code(data)
-
-        # 3b. Header Part
-        header=self.get_headers(data)
-
-        # 3c. body
-        body=self.get_body(data)
-
-        print(header)
-        print(body)
-        """
-
-        # 4. return the response
+        # 4. Return the HTTP response
         return HTTPResponse(code, body)
 
     # Main method to decide whether do POST or GET
