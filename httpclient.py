@@ -41,7 +41,7 @@ class HTTPClient(object):
         # Setup url:
         # Just incase: add "http://" if it is not in the beginning of the url
         if 'http://' != url[0:7]:
-            url="http://"+url
+            url="http://"+url 
 
         # get the url's info(hostname, port, path) using urlluib.urlparse(), learned from the source below
         
