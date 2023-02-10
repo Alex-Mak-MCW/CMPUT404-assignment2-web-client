@@ -39,9 +39,8 @@ class HTTPClient(object):
         # Goal: prepare the http request to be sent later by setting up the url, hostname, port, path
         
         # Setup url:
-        # Just incase: add "http://" if http is not in the beginning of the url
-        print("Url: ", url)
-        if 'http' not in url:
+        # Just incase: add "http://" if it is not in the beginning of the url
+        if 'http://' != url[0:7]:
             url="http://"+url
 
         # get the url's info(hostname, port, path) using urlluib.urlparse(), learned from the source below
@@ -95,12 +94,10 @@ class HTTPClient(object):
         self.socket.connect((host, port))
         return None
 
-    # Get request: code, header, body
-
     def get_code(self, data):
         # Goal: return the code in integer format
 
-        # Find the first 3-digit number using re.findall() method, learned from the source below
+        # Find the all the 3-digit number using re.findall() method, return the first one found, learned from the source below
         
         # Source Title: Python Regex: re.search() VS re.findall()
         # Source Type: Website
@@ -190,22 +187,14 @@ class HTTPClient(object):
         # Latest date contributed: February 9th, 2023
         # URL: https://docs.python.org/3/library/urllib.parse.html   
 
-        # If args exist, parse the encoded_param, else it will be an empty string
+        # If args exist, query it with args to get the encoded_param, else it will be an empty string
         if args:
             encoded_params=urllib.parse.urlencode(args)
         else:
             encoded_params=""
-        #     bytes_len=len(encoded_params)
-        # else:
-        #     encoded_params=args
-        #     bytes_len=0
         
         # Bytes length= length of param
         bytes_len=len(encoded_params)
-
-#         print("args start")
-#         print(encoded_params)
-#         print("args end")
 
         # 2. Build the POST request in string and send it
         send=f'POST {path} HTTP/1.1\r\nHost: {hostname}\r\nUser-Agent: Mozilla/5.0\r\nAccept: */*\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {bytes_len}\r\n\r\n{encoded_params}'
