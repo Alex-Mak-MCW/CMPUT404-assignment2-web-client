@@ -39,6 +39,7 @@ class HTTPClient(object):
         # 1. setup url:
 
         # add "http://" if http is not in url
+        print("Url: ", url)
         if 'http' not in url:
             url="http://"+url
 
@@ -51,6 +52,12 @@ class HTTPClient(object):
         hostname=urllib.parse.urlparse(url).hostname
         # print(hostname)
         port=urllib.parse.urlparse(url).port
+
+        # If port doesn't exist, default it with 80
+        # if port is None: // one or another below
+        if not port: 
+            port=80
+
         # print(port)
         # print(type(port))
         path=urllib.parse.urlparse(url).path
@@ -60,11 +67,6 @@ class HTTPClient(object):
         if not path:
             path='/'
         
-        # If port doesn't exist, default it with 80
-        # if port is None: // one or another below
-        if not port: 
-            port=80
-
         # connect the server with the proper hostname and port number
         self.connect(hostname, port)
 
@@ -192,7 +194,6 @@ class HTTPClient(object):
         # https://www.guru99.com/difference-get-post-http.html 
         # https://stackoverflow.com/questions/14772634/what-does-accept-mean-under-client-section-of-request-headers
 
-
         hostname, port, path=self.prepare_request(url)
 
         # send the request
@@ -231,13 +232,18 @@ class HTTPClient(object):
         # print("test")
         # print(urllib.parse.urlencode(args))
 
-        # use urllib.prase.urlencode to find the arguments, use that find its length to determine its byte length
-        if args!=None:
+        # use urllib.prase.urlencode to find the body(arguments), use that find its length to determine its byte length
+        # encoded_args=""
+        if args:
             encoded_args=urllib.parse.urlencode(args)
-            bytes_len=len(encoded_args)
         else:
-            encoded_args=args
-            bytes_len=0
+            encoded_args=""
+        #     bytes_len=len(encoded_args)
+        # else:
+        #     encoded_args=args
+        #     bytes_len=0
+        
+        bytes_len=len(encoded_args)
 
         print("args start")
         print(encoded_args)
