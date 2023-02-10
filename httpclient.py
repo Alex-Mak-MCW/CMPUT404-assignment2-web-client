@@ -192,23 +192,23 @@ class HTTPClient(object):
 
         # If args exist, parse the encoded_param, else it will be an empty string
         if args:
-            encoded_args=urllib.parse.urlencode(args)
+            encoded_params=urllib.parse.urlencode(args)
         else:
-            encoded_args=""
-        #     bytes_len=len(encoded_args)
+            encoded_params=""
+        #     bytes_len=len(encoded_params)
         # else:
-        #     encoded_args=args
+        #     encoded_params=args
         #     bytes_len=0
         
         # Bytes length= length of param
-        bytes_len=len(encoded_args)
+        bytes_len=len(encoded_params)
 
 #         print("args start")
-#         print(encoded_args)
+#         print(encoded_params)
 #         print("args end")
 
         # 2. Build the POST request in string and send it
-        send=f'POST {path} HTTP/1.1\r\nHost: {hostname}\r\nUser-Agent: Mozilla/5.0\r\nAccept: */*\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {bytes_len}\r\n\r\n{encoded_args}'
+        send=f'POST {path} HTTP/1.1\r\nHost: {hostname}\r\nUser-Agent: Mozilla/5.0\r\nAccept: */*\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {bytes_len}\r\n\r\n{encoded_params}'
         self.sendall(send)
         
         # 3. Get the code, header and body and print the response itself within the get_data function()
